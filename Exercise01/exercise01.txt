@@ -1,0 +1,22 @@
+Exercise 01: OpenMP Barrier Directive
+
+Code:
+#include <omp.h>
+#include <stdio.h>
+
+int main() {
+#pragma omp parallel
+{
+  int th = omp_get_thread_num();
+  printf("thread # %d\n", th);
+
+ #pragma omp barrier 
+ 
+ printf("Outside Barrier # %d\n", omp_get_thread_num());
+ printf("Hi again from thread # %d\n", omp_get_thread_num());
+}
+   return 0;
+}
+
+Explanation:
+The `#pragma omp barrier` directive acts as a synchronization point for all threads created in the parallel team. When execution reaches the barrier, every thread waits until all threads in the team have arrived at the barrier line. Once the last thread reaches `#pragma omp barrier`, all threads are released at the same time. This ensures all "thread # <id>" output lines are printed before any thread prints "Outside Barrier # <id>".

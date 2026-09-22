@@ -1,1 +1,46 @@
+Exercise 05: Fibonacci Task Parallelization
 
+Code:
+#include <stdio.h>
+#include <stdlib.h>
+#include <omp.h>
+
+int fib_serial(int n) {
+    if (n < 2) return n;
+    return fib_serial(n - 1) + fib_serial(n - 2);
+}
+
+int fib_task(int n) {
+    int i, j;
+    if (n < 2) return n;
+    if (n < 20) return fib_serial(n); // cutoff threshold for small subproblems
+
+    #pragma omp task shared(i) firstprivate(n)
+    i = fib_task(n - 1);
+
+    #pragma omp task shared(j) firstprivate(n)
+    j = fib_task(n - 2);
+
+    #pragma omp taskwait
+    return i + j;
+}
+
+int main() {
+    int n = 30;
+    int result;
+    double tstart = omp_get_wtime();
+    #pragma omp parallel
+    {
+        #pragma omp single
+        {
+            result = fib_task(n);
+        }
+    }
+    double tstop = omp_get_wtime();
+    printf("Fibonacci(%d) = %d\n", n, result);
+    printf("Time taken: %f ms\n", (tstop - tstart) * 1000.0);
+    return 0;
+}
+
+Explanation:
+Parallelized the recursive Fibonacci function using OpenMP tasks. `#pragma omp parallel` and `#pragma omp single` initiate task creation from a single thread. Each recursive branch is created as an independent task using `#pragma omp task`. `#pragma omp taskwait` waits for child tasks to complete before adding results. A cutoff condition (n < 20) is added to run small subproblems serially, avoiding task creation overhead.

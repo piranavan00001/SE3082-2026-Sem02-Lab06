@@ -1,1 +1,7 @@
+Exercise 04: Loop Parallelization & collapse(2)
 
+1. Standard #pragma omp parallel for:
+Without collapse, OpenMP only parallelizes the outermost loop (r = 1..5). The 5 iterations of loop r are split among the available threads. Each thread receives a subset of r values and runs all 10 iterations of inner loop k sequentially for each r.
+
+2. With #pragma omp parallel for collapse(2):
+The collapse(2) clause combines the outer loop r (5 iterations) and inner loop k (10 iterations) into a single 2D iteration space of 50 iterations (5 x 10). These 50 iterations are distributed evenly across all threads, providing finer load balancing across the thread pool.
